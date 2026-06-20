@@ -1,0 +1,17 @@
+{
+  "name": "ai-and-i-worker",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "AI&I screenshot agent — visits a URL, captures each section, zips it, uploads to Supabase, updates the job row.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "archiver": "^7.0.1",
+    "express": "^4.19.2",
+    "playwright": "^1.47.2"
+  }
+}
