@@ -12,6 +12,7 @@
     "@supabase/supabase-js": "^2.45.4",
     "archiver": "^7.0.1",
     "express": "^4.19.2",
-    "playwright": "^1.47.2"
+    "playwright": "^1.47.2",
+    "ws": "^8.18.0"
   }
 }
