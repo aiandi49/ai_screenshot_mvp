@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI&amp;I — Section Capture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15130F; --ink-2:#1F1C16; --ink-3:#272318;
+    --paper:#EDE7D8; --paper-dim:#C9C2AC;
+    --amber:#D98A3D; --amber-dim:#8C5A22; --amber-glow:rgba(217,138,61,0.25);
+    --cyan:#4FB8C4;
+    --brick:#C0524A; --brick-bg:rgba(192,82,74,0.12);
+    --text:#EDE7D8; --text-mute:#9C9684; --text-faint:#5F5A4D;
+    --display:'Space Grotesk', sans-serif;
+    --body:'IBM Plex Sans', sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+    --r:10px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms !important;transition-duration:.001ms !important;} }
+
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% -5%, rgba(217,138,61,0.07) 0%, transparent 60%),
+      var(--ink);
+    color:var(--text);
+    font-family:var(--body);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    line-height:1.55;
+  }
+
+  .panel{
+    width:100%;
+    max-width:560px;
+  }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:14px;
+  }
+
+  h1{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:clamp(28px, 5vw, 38px);
+    line-height:1.15;
+    letter-spacing:-0.01em;
+    color:var(--paper);
+    margin-bottom:10px;
+  }
+
+  .sub{
+    color:var(--text-mute);
+    font-size:15px;
+    margin-bottom:34px;
+    max-width:46ch;
+  }
+
+  form{
+    display:flex;
+    gap:10px;
+    margin-bottom:22px;
+  }
+
+  input[type="url"]{
+    flex:1;
+    min-width:0;
+    background:var(--ink-2);
+    border:1px solid var(--ink-3);
+    border-radius:var(--r);
+    padding:14px 16px;
+    font-family:var(--mono);
+    font-size:14px;
+    color:var(--text);
+  }
+  input[type="url"]::placeholder{ color:var(--text-faint); }
+  input[type="url"]:focus-visible{
+    outline:none;
+    border-color:var(--amber);
+    box-shadow:0 0 0 3px var(--amber-glow);
+  }
+
+  button{
+    font-family:var(--body);
+    font-weight:600;
+    font-size:14px;
+    background:var(--amber);
+    color:var(--ink);
+    border:none;
+    border-radius:var(--r);
+    padding:14px 22px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+    white-space:nowrap;
+  }
+  button:hover:not(:disabled){ background:#E59B52; }
+  button:active:not(:disabled){ transform:translateY(1px); }
+  button:disabled{ background:var(--amber-dim); color:var(--ink-2); cursor:default; opacity:.7; }
+  button:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px; }
+
+  /* ---- status panel ---- */
+  .status{
+    display:none;
+    border:1px solid var(--ink-3);
+    border-radius:14px;
+    background:var(--ink-2);
+    padding:22px 22px 24px;
+  }
+  .status.is-visible{ display:block; animation:fadeUp .35s ease both; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .status-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:16px;
+  }
+  .status-url{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-mute);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .status-label{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--text);
+    flex-shrink:0;
+  }
+
+  /* the scan strip — signature element */
+  .scan{
+    position:relative;
+    height:34px;
+    border-radius:6px;
+    background:
+      repeating-linear-gradient(90deg, var(--ink-3) 0 2px, transparent 2px 10px),
+      var(--ink);
+    overflow:hidden;
+    border:1px solid var(--ink-3);
+  }
+  .scan::before{
+    content:'';
+    position:absolute;
+    top:0; left:-30%;
+    width:30%; height:100%;
+    background:linear-gradient(90deg, transparent, var(--cyan) 50%, transparent);
+    opacity:0;
+  }
+  .scan.is-active::before{
+    opacity:.85;
+    animation:sweep 1.6s linear infinite;
+  }
+  @keyframes sweep{
+    0%{ left:-30%; }
+    100%{ left:100%; }
+  }
+  .scan.is-done{
+    background:var(--ink);
+    border-color:var(--amber-dim);
+  }
+  .scan.is-done::after{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(90deg, var(--amber-dim), var(--amber));
+  }
+  .scan.is-failed{
+    background:var(--brick-bg);
+    border-color:var(--brick);
+  }
+
+  .status-note{
+    margin-top:16px;
+    font-size:14px;
+    color:var(--text-mute);
+  }
+  .status-error{
+    margin-top:14px;
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--brick);
+    background:var(--brick-bg);
+    border-radius:8px;
+    padding:12px 14px;
+  }
+
+  .download-link{
+    display:inline-block;
+    margin-top:18px;
+    font-family:var(--body);
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink);
+    background:var(--amber);
+    border-radius:var(--r);
+    padding:12px 20px;
+    text-decoration:none;
+  }
+  .download-link:hover{ background:#E59B52; }
+  .download-link:focus-visible{ outline:3px solid var(--cyan); outline-offset:2px; }
+  .download-link[aria-disabled="true"]{
+    pointer-events:none;
+    opacity:.6;
+  }
+
+  footer{
+    margin-top:30px;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--text-faint);
+  }
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <div class="eyebrow">AI&amp;I</div>
+  <h1>Paste a URL.<br>Get every section, captured.</h1>
+  <p class="sub">Visits the page, screenshots each section on its own, and reads what's in them — no scrolling, cropping, or typing required.</p>
+
+  <form id="job-form">
+    <input type="url" id="url-input" name="url" placeholder="https://example.com" required autocomplete="off">
+    <button type="submit" id="submit-btn">Capture</button>
+  </form>
+
+  <section class="status" id="status-panel" aria-live="polite">
+    <div class="status-row">
+      <span class="status-url" id="status-url"></span>
+      <span class="status-label" id="status-label">Queued</span>
+    </div>
+    <div class="scan" id="scan-strip"></div>
+    <p class="status-note" id="status-note">Sitting in the queue — checked every few seconds.</p>
+    <div id="status-error-wrap"></div>
+    <div id="download-wrap"></div>
+  </section>
+
+  <footer>AI&amp;I — screenshot agent</footer>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  // ── fill these in before deploying ──
+  const SUPABASE_URL = 'https://hgbiuqkjozruytgsdinc.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhnYml1cWtqb3pydXl0Z3NkaW5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MjczOTUsImV4cCI6MjA5NzUwMzM5NX0.3YGZcSI_Yo8mdsgw48CTsnWb61a-uSxoAD81MLE7zO8';
+  // ─────────────────────────────────────
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById('job-form');
+  const urlInput = document.getElementById('url-input');
+  const submitBtn = document.getElementById('submit-btn');
+  const statusPanel = document.getElementById('status-panel');
+  const statusUrl = document.getElementById('status-url');
+  const statusLabel = document.getElementById('status-label');
+  const scanStrip = document.getElementById('scan-strip');
+  const statusNote = document.getElementById('status-note');
+  const errorWrap = document.getElementById('status-error-wrap');
+  const downloadWrap = document.getElementById('download-wrap');
+
+  const STATUS_COPY = {
+    pending:   { label: 'Queued',                note: 'Sitting in the queue — checked every few seconds.' },
+    capturing: { label: 'Capturing sections…',    note: 'Visiting the page and screenshotting each section.' },
+    processing:{ label: 'Reading what\u2019s there…', note: 'Each section is being analyzed.' },
+    done:      { label: 'Ready',                  note: 'All sections captured and analyzed.' },
+    failed:    { label: 'Couldn\u2019t complete',  note: 'See what happened below.' }
+  };
+
+  let channel = null;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const url = urlInput.value.trim();
+    if (!url) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Starting…';
+    errorWrap.innerHTML = '';
+    downloadWrap.innerHTML = '';
+
+    const { data, error } = await supabase
+      .from('jobs')
+      .insert({ url })
+      .select()
+      .single();
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Capture';
+
+    if (error || !data) {
+      errorWrap.innerHTML = `<p class="status-error">Couldn't start the job: ${escapeHtml(error?.message || 'unknown error')}</p>`;
+      statusPanel.classList.add('is-visible');
+      return;
+    }
+
+    watchJob(data);
+  });
+
+  function watchJob(job) {
+    statusUrl.textContent = job.url;
+    statusPanel.classList.add('is-visible');
+    render(job);
+
+    if (channel) supabase.removeChannel(channel);
+    channel = supabase
+      .channel(`job-${job.id}`)
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'jobs', filter: `id=eq.${job.id}` },
+        (payload) => render(payload.new)
+      )
+      .subscribe();
+  }
+
+  function render(job) {
+    const copy = STATUS_COPY[job.status] || STATUS_COPY.pending;
+    statusLabel.textContent = copy.label;
+    statusNote.textContent = copy.note;
+
+    scanStrip.classList.remove('is-active', 'is-done', 'is-failed');
+    errorWrap.innerHTML = '';
+    downloadWrap.innerHTML = '';
+
+    if (job.status === 'pending' || job.status === 'capturing' || job.status === 'processing') {
+      scanStrip.classList.add('is-active');
+    } else if (job.status === 'done') {
+      scanStrip.classList.add('is-done');
+      showDownload(job.id);
+    } else if (job.status === 'failed') {
+      scanStrip.classList.add('is-failed');
+      if (job.error) {
+        errorWrap.innerHTML = `<p class="status-error">${escapeHtml(job.error)}</p>`;
+      }
+    }
+  }
+
+  async function showDownload(jobId) {
+    downloadWrap.innerHTML = `<a class="download-link" id="dl-link" href="#" aria-disabled="true">Getting link…</a>`;
+    try {
+      const res = await fetch(`/api/download-url?jobId=${encodeURIComponent(jobId)}`);
+      const body = await res.json();
+      const link = document.getElementById('dl-link');
+      if (!res.ok || !body.url) {
+        link.textContent = 'Link unavailable — refresh to retry';
+        return;
+      }
+      link.href = body.url;
+      link.removeAttribute('aria-disabled');
+      link.textContent = 'Download ZIP';
+    } catch {
+      const link = document.getElementById('dl-link');
+      if (link) link.textContent = 'Link unavailable — refresh to retry';
+    }
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+</script>
+
+</body>
+</html>
