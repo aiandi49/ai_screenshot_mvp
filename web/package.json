@@ -1,0 +1,10 @@
+{
+  "name": "ai-and-i-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI&I frontend — paste a URL, watch it capture live, download the result.",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  }
+}
