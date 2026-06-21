@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient.js';
 import { captureSections } from './capture.js';
 import { uploadScreenshots, zipAndUpload } from './storage.js';
-import { generateOutput } from './llmStub.js';
+import { generateOutput } from './llmAnalyzer.js';
 
 const POLL_INTERVAL_MS = 5000;
 let running = false; // prevents overlapping ticks if a job runs long
